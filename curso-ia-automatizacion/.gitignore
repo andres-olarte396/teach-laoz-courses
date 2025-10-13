@@ -1,0 +1,49 @@
+# Archivos temporales
+*.tmp
+*.temp
+*.log
+*.cache
+
+# Archivos de entorno
+.env
+.venv
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Archivos de compilación
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Documentos temporales
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# Archivos de backup
+*.bak
+*.backup
+
+# Archivos de prueba locales
+test_output/
+temp_files/
+sandbox/

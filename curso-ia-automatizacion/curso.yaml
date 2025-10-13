@@ -1,0 +1,105 @@
+curso:
+  nombre: "Conceptos Básicos de IA y Automatización de Procesos"
+  version: "1.0"
+  estado: "EN DESARROLLO"
+  descripcion: "Curso introductorio sobre los fundamentos de la inteligencia artificial y la automatización de procesos empresariales mediante IA, RPA y agentes inteligentes."
+  autor: "Andrés Olarte"
+  licencia: "MIT"
+  ultima_actualizacion: "2025-10-13"
+
+objetivos:
+  - Comprender los fundamentos teóricos de la IA moderna
+  - Implementar algoritmos básicos de aprendizaje automático
+  - Aplicar automatización inteligente en procesos reales
+  - Integrar agentes basados en LLM en flujos de trabajo
+  - Evaluar modelos de IA en entornos productivos
+
+prerrequisitos:
+  conocimientos_previos:
+    - Programación en Python
+    - Conocimientos básicos de álgebra y estadística
+    - Fundamentos de arquitectura de software
+  herramientas_requeridas:
+    locales:
+      - Python 3.10+
+      - Visual Studio Code
+    cloud:
+      - Google Colab
+      - Hugging Face
+    cuentas:
+      - GitHub
+      - OpenAI API key
+
+estructura:
+  fases:
+    - id: "00"
+      nombre: "Fundamentos de Programación"
+      duracion: "6 horas"
+      tipo: "Conceptual"
+      archivos: 3
+    - id: "01"
+      nombre: "Fundamentos de IA"
+      duracion: "8 horas"
+      tipo: "Teórico"
+      archivos: 4
+    - id: "02"
+      nombre: "Machine Learning"
+      duracion: "10 horas"
+      tipo: "Hands-on"
+      archivos: 4
+    - id: "03"
+      nombre: "Deep Learning"
+      duracion: "12 horas"
+      tipo: "Técnico"
+      archivos: 3
+    - id: "04"
+      nombre: "NLP"
+      duracion: "10 horas"
+      tipo: "Hands-on"
+      archivos: 3
+    - id: "05"
+      nombre: "Automatización Inteligente"
+      duracion: "8 horas"
+      tipo: "Aplicado"
+      archivos: 3
+    - id: "06"
+      nombre: "MLOps"
+      duracion: "8 horas"
+      tipo: "Técnico"
+      archivos: 3
+    - id: "07"
+      nombre: "Agentes Inteligentes"
+      duracion: "6 horas"
+      tipo: "Exploratorio"
+      archivos: 3
+    - id: "08"
+      nombre: "Ética y Gobernanza"
+      duracion: "4 horas"
+      tipo: "Conceptual"
+      archivos: 3
+    - id: "09"
+      nombre: "Proyecto Final"
+      duracion: "8 horas"
+      tipo: "Integrador"
+      archivos: 3
+
+evaluacion:
+  criterios:
+    - Completar todas las fases con ejercicios prácticos
+    - Entregar el proyecto final con documentación técnica
+    - Presentar resultados reproducibles
+  checklist:
+    - [ ] Revisar prerequisitos
+    - [ ] Completar notebooks prácticos
+    - [ ] Ejecutar ejemplos de automatización
+    - [ ] Publicar agente funcional
+    - [ ] Entregar proyecto final
+
+navegacion:
+  anterior: "N/A"
+  siguiente: "Machine Learning"
+  recursos:
+    - "Notas del curso"
+    - "Documentación de Hugging Face"
+    - "Ejemplos en Colab"
+

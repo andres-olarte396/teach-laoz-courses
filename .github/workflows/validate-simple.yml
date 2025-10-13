@@ -1,0 +1,47 @@
+name: 🔍 Validación de Cursos
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validar Cursos
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          pip install pyyaml
+
+      - name: Find and Validate Courses
+        run: |
+          echo "🔍 Buscando archivos curso.yaml..."
+          find . -name "curso.yaml" -type f | while read course_file; do
+            echo "📄 Validando: $course_file"
+            course_dir=$(dirname "$course_file")
+            
+            if [[ -f "$course_dir/scripts/validate_yaml.py" ]]; then
+              python "$course_dir/scripts/validate_yaml.py" "$course_file"
+            else
+              echo "⚠️ No se encontró script de validación, verificando sintaxis YAML..."
+              python -c "import yaml; yaml.safe_load(open('$course_file', 'r', encoding='utf-8'))" && echo "✅ YAML válido"
+            fi
+          done
+
+      - name: Create Summary
+        run: |
+          echo "# 📋 Resumen de Validación" >> $GITHUB_STEP_SUMMARY
+          echo "**Fecha:** $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY

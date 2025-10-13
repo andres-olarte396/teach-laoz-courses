@@ -1,0 +1,181 @@
+# ================================================================
+# 📘 PLANTILLA BASE DE DEFINICIÓN DE CURSO
+# ---------------------------------------------------------------
+# Esta plantilla define los parámetros iniciales del curso para 
+# que el generador (ChatGPT / API / pipeline) produzca el contenido 
+# completo siguiendo las tres fases: Roadmap, Desglose Conceptual 
+# y Estructura Modular.
+# ================================================================
+
+metadata:
+  id: ""                # ID único del curso (ej: DEVOPS-001)
+  nombre: ""            # Nombre completo del curso
+  version: "1.0.0"      # Versión del curso
+  autor: ""             # Nombre del creador/instructor
+  fecha_creacion: ""    # Formato YYYY-MM-DD
+  ultima_actualizacion: "" # Fecha de última modificación
+  estado: "en desarrollo" # Opciones: en desarrollo | completo | revisión
+
+# ---------------------------------------------------------------
+# 🎯 DESCRIPCIÓN GENERAL
+# ---------------------------------------------------------------
+descripcion:
+  proposito: ""         # Breve descripción del propósito general del curso
+  resumen: ""           # Descripción general más extensa (2-3 párrafos)
+  publico_objetivo: ""  # A quién está dirigido (roles, experiencia, sector)
+  resultados_esperados: # Lista de resultados de aprendizaje globales
+    - ""
+    - ""
+    - ""
+
+# ---------------------------------------------------------------
+# 🧩 CONFIGURACIÓN PRINCIPAL
+# ---------------------------------------------------------------
+configuracion:
+  nivel_objetivo: "básico | intermedio | avanzado"
+  duracion_total_horas: 0
+  formato_entrega: "presencial | online | híbrido"
+  modalidad_estudio: "intensivo | relajado | flexible"
+  idioma: "es" # idioma principal del curso
+
+# ---------------------------------------------------------------
+# 📅 ROADMAP Y BLOQUES TEMÁTICOS (FASE 1)
+# ---------------------------------------------------------------
+roadmap:
+  bloques:
+    - nombre: ""              # Ej: "Fundamentos"
+      descripcion: ""         # Breve explicación del bloque
+      duracion_horas: 0
+      nivel_bloom: "recordar | comprender | aplicar | analizar | evaluar | crear"
+      resultados_aprendizaje:
+        - ""                  # Resultado esperado de aprendizaje del bloque
+      temas:
+        - ""                  # Tema específico
+        - ""
+    - nombre: ""              # Segundo bloque
+      descripcion: ""
+      duracion_horas: 0
+      nivel_bloom: ""
+      resultados_aprendizaje:
+        - ""
+      temas:
+        - ""
+
+# ---------------------------------------------------------------
+# 🧠 DESGLOSE CONCEPTUAL (FASE 2)
+# ---------------------------------------------------------------
+conceptual:
+  preconceptos_requeridos:
+    - ""                      # Conocimientos previos necesarios
+  dependencias_entre_temas:
+    - origen: ""              # Tema o bloque origen
+      depende_de: ""          # Tema o bloque del que depende
+  mapa_relaciones: ""         # Descripción textual o enlace a diagrama Mermaid
+  indicadores_dominio:
+    - concepto: ""
+      criterio: ""            # Cómo se evalúa su dominio (ej: "resolver ejercicio tipo X")
+
+# ---------------------------------------------------------------
+# 🧱 ESTRUCTURA MODULAR (FASE 3)
+# ---------------------------------------------------------------
+modulos:
+  - nombre: ""                # Ej: "Módulo 1: Introducción a ..."
+    tipo: "conceptual | técnico | hands-on"
+    descripcion: ""           # Breve descripción del módulo
+    duracion_horas: 0
+    objetivos_smart:
+      - ""                    # Ej: "Aplicar el concepto X para ..."
+    unidades:
+      - nombre: ""            # Ej: "Unidad 1.1 - Conceptos Básicos"
+        tipo: "teoría | práctica | evaluación"
+        objetivos:
+          - ""
+        actividades:
+          - ""                # Ej: "Crear un entorno de prueba local"
+          - ""
+      - nombre: ""
+        tipo: ""
+        objetivos:
+          - ""
+        actividades:
+          - ""
+  - nombre: ""                # Segundo módulo
+    tipo: ""
+    descripcion: ""
+    duracion_horas: 0
+    objetivos_smart:
+      - ""
+    unidades:
+      - nombre: ""
+        tipo: ""
+        objetivos:
+          - ""
+        actividades:
+          - ""
+
+# ---------------------------------------------------------------
+# 📊 MÉTRICAS DE CALIDAD (validación automática)
+# ---------------------------------------------------------------
+metricas:
+  roadmap:
+    temas_con_nivel_cognitivo: "100%"
+    trazabilidad_a_resultados: "≥ 90%"
+    equilibrio_carga_trabajo: "< 20%"
+    coherencia_global: "≥ 4/5"
+  conceptual:
+    dependencias_definidas: "100%"
+    coherencia_secuencia_nivel: "≥ 90%"
+    claridad_prerrequisitos: "≥ 80%"
+    dificultad_ajustada: "±1 nivel"
+  modular:
+    trazabilidad_con_roadmap: "100%"
+    objetivos_smart: "≥ 95%"
+    uniformidad_estructural: "≥ 90%"
+    balance_formativo: "rango 40:40:20 ±10%"
+
+# ---------------------------------------------------------------
+# 🧰 STACK TECNOLÓGICO (opcional)
+# ---------------------------------------------------------------
+tecnologias:
+  categorias:
+    - nombre: ""              # Ej: "Infraestructura"
+      herramientas:
+        - nombre: ""          # Ej: "Docker"
+          descripcion: ""     # Qué rol cumple
+          tipo: "local | cloud | devops | data | ai | otra"
+    - nombre: ""
+      herramientas:
+        - nombre: ""
+          descripcion: ""
+          tipo: ""
+
+# ---------------------------------------------------------------
+# 🧭 NAVEGACIÓN ENTRE FASES Y CURSOS
+# ---------------------------------------------------------------
+navegacion:
+  anterior: ""                # Ej: "Curso previo o prerequisito"
+  siguiente: ""               # Ej: "Siguiente curso en la ruta"
+  recursos_relacionados:
+    - ""                      # Links o referencias adicionales
+
+# ---------------------------------------------------------------
+# 🧩 PROYECTO FINAL DE FASE
+# ---------------------------------------------------------------
+proyecto_final:
+  titulo: ""                  # Ej: "Implementar un pipeline CI/CD completo"
+  descripcion: ""             # Descripción general del proyecto
+  requisitos:
+    - ""                      # Requisitos técnicos o conceptuales
+  entregables:
+    - ""                      # Qué debe entregar el estudiante
+  criterios_evaluacion:
+    - ""                      # Ej: "Ejecución exitosa del pipeline en entorno simulado"
+
+# ---------------------------------------------------------------
+# 🧾 METADATOS DE PUBLICACIÓN
+# ---------------------------------------------------------------
+publicacion:
+  licencia: "MIT"
+  repositorio: ""             # Enlace a GitHub o fuente
+  visibilidad: "privado | público"
+  comentarios_finales: ""     # Mensaje motivacional o cierre

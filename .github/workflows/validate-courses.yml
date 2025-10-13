@@ -1,0 +1,202 @@
+name: 🔍 Validación Continua de Cursos
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Ejecutar validación diaria a las 6:00 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  discover-courses:
+    name: 🔎 Descubrir Cursos
+    runs-on: ubuntu-latest
+    outputs:
+      courses: ${{ steps.find_courses.outputs.courses }}
+      
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔍 Find All Course Files
+        id: find_courses
+        run: |
+          # Buscar todos los archivos curso.yaml en el repositorio
+          COURSES=$(find . -name "curso.yaml" -type f | jq -R -s -c 'split("\n")[:-1]')
+          echo "courses=$COURSES" >> $GITHUB_OUTPUT
+          
+          echo "Cursos encontrados:"
+          echo "$COURSES" | jq -r '.[]'
+
+  validate-structure:
+    name: ✅ Validar Estructura
+    runs-on: ubuntu-latest
+    needs: discover-courses
+    if: ${{ needs.discover-courses.outputs.courses != '[]' }}
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        course: ${{ fromJson(needs.discover-courses.outputs.courses) }}
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+
+      - name: 🔍 Validate Course YAML
+        run: |
+          course_file="${{ matrix.course }}"
+          course_dir=$(dirname "$course_file")
+          
+          echo "🔍 Validando: $course_file"
+          
+          if [[ -f "$course_dir/scripts/validate_yaml.py" ]]; then
+            python "$course_dir/scripts/validate_yaml.py" "$course_file"
+          else
+            echo "⚠️  Script de validación no encontrado"
+            echo "🔍 Verificando estructura básica del YAML..."
+            python -c "import yaml; yaml.safe_load(open('$course_file'))"
+            echo "✅ YAML válido"
+          fi
+
+      - name: 📊 Course Analytics
+        run: |
+          course_file="${{ matrix.course }}"
+          echo "📊 Analizando curso: $course_file"
+          
+          python -c "
+import yaml
+with open('$course_file', 'r', encoding='utf-8') as f:
+    data = yaml.safe_load(f)
+curso = data['curso']
+print(f'📄 ID: {curso.get(\"id\", \"N/A\")}')
+print(f'📚 Título: {curso.get(\"titulo\", \"Sin título\")}')
+print(f'🎯 Módulos: {len(curso.get(\"modulos\", []))}')
+print(f'⏱️  Duración: {curso.get(\"duracion_aproximada\", \"N/A\")}')
+peso_total = sum(m.get('evaluacion', {}).get('peso', 0) for m in curso.get('modulos', []))
+print(f'� Peso evaluaciones: {peso_total}%')
+if peso_total != 100:
+    print('⚠️  Advertencia: Peso total no es 100%')
+"
+
+  check-consistency:
+    name: 🔄 Verificar Consistencia
+    runs-on: ubuntu-latest
+    needs: [discover-courses, validate-structure]
+    if: always()
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+
+      - name: 🔍 Check Template Consistency
+        run: |
+          echo "🔍 Verificando consistencia con plantilla base..."
+          
+          if [[ -f "template-curso.yaml" ]]; then
+            echo "✅ Plantilla base encontrada"
+            python -c "
+import yaml, glob
+courses = glob.glob('**/curso.yaml', recursive=True)
+print(f'🔍 Verificando {len(courses)} cursos...')
+for course in courses:
+    try:
+        with open(course, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f)
+        if 'curso' in data:
+            print(f'✅ {course}: estructura válida')
+        else:
+            print(f'❌ {course}: falta estructura')
+    except Exception as e:
+        print(f'❌ {course}: error - {e}')
+print('🎉 Verificación completada')
+"
+          else
+            echo "⚠️  Plantilla base no encontrada"
+          fi
+
+      - name: 📊 Generate Validation Report
+        if: always()
+        run: |
+          {
+            echo "# 📋 Reporte de Validación de Cursos"
+            echo ""
+            echo "**Fecha:** $(date '+%Y-%m-%d %H:%M:%S')"
+            echo "**Commit:** ${{ github.sha }}"
+            echo ""
+            echo "## 📊 Resultados de Validación"
+            echo ""
+            if [[ "${{ needs.validate-structure.result }}" == "success" ]]; then
+              echo "✅ **Validación de Estructura:** Exitosa"
+            else
+              echo "❌ **Validación de Estructura:** Fallida"
+            fi
+            echo ""
+            echo "## 🎓 Cursos Procesados"
+            echo ""
+            echo '${{ needs.discover-courses.outputs.courses }}' | jq -r '.[] | "- " + .'
+          } > validation-report.md
+
+      - name: 📤 Upload Validation Report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: validation-report
+          path: validation-report.md
+          retention-days: 30
+
+  summary:
+    name: 📋 Resumen Final
+    runs-on: ubuntu-latest
+    needs: [discover-courses, validate-structure, check-consistency]
+    if: always()
+    
+    steps:
+      - name: 📝 Create Summary
+        run: |
+          {
+            echo "# 🎓 Resumen de Validación de Cursos"
+            echo ""
+            total_courses=$(echo '${{ needs.discover-courses.outputs.courses }}' | jq length)
+            echo "**Total de cursos encontrados:** $total_courses"
+            echo ""
+            echo "## 📊 Estado de Validaciones"
+            echo ""
+            if [[ "${{ needs.validate-structure.result }}" == "success" ]]; then
+              echo "✅ **Validación de Estructura:** Exitosa"
+            elif [[ "${{ needs.validate-structure.result }}" == "skipped" ]]; then
+              echo "⏭️ **Validación de Estructura:** Omitida"
+            else
+              echo "❌ **Validación de Estructura:** Fallida"
+            fi
+            if [[ "${{ needs.check-consistency.result }}" == "success" ]]; then
+              echo "✅ **Verificación de Consistencia:** Exitosa"
+            else
+              echo "❌ **Verificación de Consistencia:** Fallida"
+            fi
+            echo ""
+            echo "**Ejecutado el:** $(date '+%Y-%m-%d %H:%M:%S')"
+          } >> $GITHUB_STEP_SUMMARY
