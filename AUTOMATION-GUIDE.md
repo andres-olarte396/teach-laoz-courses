@@ -16,11 +16,13 @@ El sistema automatiza los siguientes procesos:
 ### 1. Generación Automática de Cursos (`generate-course.yml`)
 
 **Triggers:**
+
 - Push a archivos `**/curso.yaml` o `**/scripts/**`
 - Pull requests que modifiquen estos archivos
 - Ejecución manual (workflow_dispatch)
 
 **Funcionalidades:**
+
 - ✅ Validación de estructura YAML
 - 📚 Generación automática de README, roadmap y módulos
 - 🧪 Ejecución de tests de validación
@@ -28,6 +30,7 @@ El sistema automatiza los siguientes procesos:
 - 📊 Estadísticas y métricas del curso
 
 **Uso manual:**
+
 ```bash
 # Ir a Actions > Generación Automática de Cursos > Run workflow
 # Especificar: curso-IA-AUTOMATIZACION/curso.yaml
@@ -36,11 +39,13 @@ El sistema automatiza los siguientes procesos:
 ### 2. Validación Continua (`validate-simple.yml`)
 
 **Triggers:**
+
 - Push a ramas main/develop
 - Pull requests
 - Ejecución manual
 
 **Funcionalidades:**
+
 - 🔍 Búsqueda automática de todos los cursos
 - ✅ Validación de sintaxis YAML
 - 📊 Generación de reportes de validación
@@ -48,16 +53,19 @@ El sistema automatiza los siguientes procesos:
 ### 3. Exportación a PDF (`export-pdf.yml`)
 
 **Triggers:**
+
 - Ejecución manual (workflow_dispatch)
 - Push de tags de versión (`v*`)
 
 **Funcionalidades:**
+
 - 📄 Conversión de Markdown a PDF usando Pandoc
 - 📚 Creación de PDF combinado del curso completo
 - 📦 Generación de archivos ZIP para descarga
 - 🏷️ Creación de releases automáticas
 
 **Uso manual:**
+
 ```bash
 # Ir a Actions > Exportar Cursos a PDF > Run workflow
 # Especificar directorio: curso-IA-AUTOMATIZACION
@@ -93,6 +101,7 @@ curso-IA-AUTOMATIZACION/
 ## 🛠️ Scripts Disponibles
 
 ### 1. `generate_course.py`
+
 Genera todo el contenido del curso a partir del archivo YAML.
 
 ```bash
@@ -100,6 +109,7 @@ python scripts/generate_course.py curso.yaml
 ```
 
 ### 2. `validate_yaml.py`
+
 Valida la estructura y contenido del archivo YAML del curso.
 
 ```bash
@@ -107,6 +117,7 @@ python scripts/validate_yaml.py curso.yaml
 ```
 
 ### 3. `export_pdf.sh`
+
 Exporta todos los archivos Markdown a PDF.
 
 ```bash
@@ -119,18 +130,21 @@ chmod +x scripts/export_pdf.sh
 ### Para crear un nuevo curso:
 
 1. **📝 Crear archivo YAML:**
+
    ```bash
    cp template-curso.yaml nuevo-curso/curso.yaml
    # Editar nuevo-curso/curso.yaml con la información del curso
    ```
 
 2. **🔧 Configurar scripts:**
+
    ```bash
    mkdir -p nuevo-curso/scripts
    cp curso-IA-AUTOMATIZACION/scripts/* nuevo-curso/scripts/
    ```
 
 3. **💾 Hacer commit:**
+
    ```bash
    git add nuevo-curso/
    git commit -m "feat: add new course configuration"
@@ -157,6 +171,7 @@ chmod +x scripts/export_pdf.sh
 ### Para hacer cambios a un curso existente:
 
 1. **✏️ Editar archivo YAML:**
+
    ```bash
    # Modificar curso-IA-AUTOMATIZACION/curso.yaml
    git add curso-IA-AUTOMATIZACION/curso.yaml
@@ -182,12 +197,14 @@ En los workflows se pueden configurar:
 ### Personalización de templates:
 
 Los templates de generación se pueden personalizar editando:
+
 - `generate_course.py`: Lógica de generación
 - `template-curso.yaml`: Estructura base de cursos
 
 ### Hooks personalizados:
 
 Se pueden añadir hooks pre/post generación creando:
+
 - `scripts/pre_generate.py`: Ejecutado antes de generar
 - `scripts/post_generate.py`: Ejecutado después de generar
 
@@ -196,16 +213,18 @@ Se pueden añadir hooks pre/post generación creando:
 ### Problemas comunes:
 
 1. **❌ Error de validación YAML:**
+
    ```bash
    # Verificar sintaxis manualmente
    python -c "import yaml; yaml.safe_load(open('curso.yaml'))"
    ```
 
 2. **❌ Error en generación PDF:**
+
    ```bash
    # Verificar que pandoc esté instalado
    pandoc --version
-   
+
    # Instalar dependencias faltantes
    sudo apt-get install pandoc texlive-xetex
    ```
@@ -241,7 +260,7 @@ El sistema genera automáticamente:
 
 - [ ] 🌐 Exportación a HTML interactivo
 - [ ] 📱 Generación de versión móvil
-- [ ] 🎨 Templates de diseño personalizables  
+- [ ] 🎨 Templates de diseño personalizables
 - [ ] 🔗 Integración con plataformas LMS
 - [ ] 📧 Notificaciones automáticas
 - [ ] 🌍 Soporte multi-idioma
