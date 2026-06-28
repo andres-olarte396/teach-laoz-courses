@@ -1,0 +1,235 @@
+name: 🚀 Generación Automática de Cursos
+
+on:
+  push:
+    paths:
+      - '**/curso.yaml'
+      - '**/scripts/**'
+  pull_request:
+    paths:
+      - '**/curso.yaml'
+      - '**/scripts/**'
+  workflow_dispatch:
+    inputs:
+      course_path:
+        description: 'Ruta al archivo curso.yaml (ej: curso-IA-AUTOMATIZACION/curso.yaml)'
+        required: true
+        default: 'curso-IA-AUTOMATIZACION/curso.yaml'
+
+jobs:
+  validate:
+    name: 🔍 Validar Estructura del Curso
+    runs-on: ubuntu-latest
+    outputs:
+      courses: ${{ steps.detect_courses.outputs.courses }}
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 📦 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+
+      - name: 🔍 Detect Course Changes
+        id: detect_courses
+        run: |
+          # Detectar cursos modificados
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # Ejecución manual
+            echo "courses=${{ github.event.inputs.course_path }}" >> $GITHUB_OUTPUT
+          else
+            # Detectar cambios automáticamente
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "curso\.yaml$" || true)
+            if [[ -n "$CHANGED_FILES" ]]; then
+              echo "courses<<EOF" >> $GITHUB_OUTPUT
+              echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            else
+              echo "courses=" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: 📝 List Detected Courses
+        run: |
+          echo "Cursos detectados para procesamiento:"
+          echo "${{ steps.detect_courses.outputs.courses }}"
+
+      - name: ✅ Validate YAML Structure
+        if: ${{ steps.detect_courses.outputs.courses != '' }}
+        run: |
+          IFS=$'\n'
+          for course_file in ${{ steps.detect_courses.outputs.courses }}; do
+            if [[ -f "$course_file" ]]; then
+              echo "🔍 Validando: $course_file"
+              python "${course_file%/*}/scripts/validate_yaml.py" "$course_file"
+            else
+              echo "⚠️  Archivo no encontrado: $course_file"
+            fi
+          done
+
+  generate:
+    name: 📚 Generar Contenido del Curso
+    runs-on: ubuntu-latest
+    needs: validate
+    if: ${{ needs.validate.outputs.courses != '' }}
+    
+    strategy:
+      matrix:
+        course: ${{ fromJson(format('["{0}"]', needs.validate.outputs.courses)) }}
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 📦 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+
+      - name: 🔧 Generate Course Content
+        run: |
+          course_file="${{ matrix.course }}"
+          course_dir=$(dirname "$course_file")
+          
+          echo "📁 Directorio del curso: $course_dir"
+          echo "📄 Archivo del curso: $course_file"
+          
+          if [[ -f "$course_file" ]]; then
+            echo "🚀 Generando contenido para: $course_file"
+            python "$course_dir/scripts/generate_course.py" "$course_file"
+          else
+            echo "❌ Error: Archivo no encontrado: $course_file"
+            exit 1
+          fi
+
+      - name: 📊 Generate Course Statistics
+        run: |
+          course_file="${{ matrix.course }}"
+          course_dir=$(dirname "$course_file")
+          
+          echo "📈 Estadísticas del curso generado:" > "$course_dir/stats.md"
+          echo "- **Fecha de generación:** $(date '+%Y-%m-%d %H:%M:%S')" >> "$course_dir/stats.md"
+          echo "- **Commit:** ${{ github.sha }}" >> "$course_dir/stats.md"
+          echo "- **Archivos generados:**" >> "$course_dir/stats.md"
+          
+          # Contar archivos generados
+          find "$course_dir" -name "*.md" -type f | while read file; do
+            echo "  - $(basename "$file")" >> "$course_dir/stats.md"
+          done
+
+      - name: 🧪 Run Course Tests
+        run: |
+          course_file="${{ matrix.course }}"
+          course_dir=$(dirname "$course_file")
+          
+          echo "🧪 Ejecutando tests del curso..."
+          
+          # Verificar que se generaron los archivos esperados
+          expected_files=("README.md" "roadmap.md" "test.md")
+          
+          for file in "${expected_files[@]}"; do
+            if [[ -f "$course_dir/$file" ]]; then
+              echo "✅ $file generado correctamente"
+            else
+              echo "❌ Error: $file no fue generado"
+              exit 1
+            fi
+          done
+          
+          # Verificar estructura de módulos
+          if [[ -d "$course_dir/modulos" ]]; then
+            echo "✅ Directorio de módulos creado"
+            module_count=$(find "$course_dir/modulos" -mindepth 1 -maxdepth 1 -type d | wc -l)
+            echo "📊 Módulos generados: $module_count"
+          else
+            echo "❌ Error: Directorio de módulos no fue creado"
+            exit 1
+          fi
+
+      - name: 📤 Commit Generated Content
+        if: github.event_name != 'pull_request'
+        run: |
+          git config --local user.name "🤖 Course Generator Bot"
+          git config --local user.email "course-bot@github-actions.noreply.com"
+          
+          course_file="${{ matrix.course }}"
+          course_dir=$(dirname "$course_file")
+          course_name=$(basename "$course_dir")
+          
+          # Añadir archivos generados
+          git add "$course_dir/"
+          
+          # Verificar si hay cambios
+          if git diff --staged --quiet; then
+            echo "ℹ️  No hay cambios para commitear"
+          else
+            echo "💾 Commiteando cambios..."
+            git commit -m "🚀 Auto-generate course content for $course_name
+
+            - Generated README.md, roadmap.md, and module structure
+            - Updated course materials and tests
+            - Generated by GitHub Actions on $(date)
+            
+            Course: $course_file
+            Commit: ${{ github.sha }}"
+            
+            git push origin ${{ github.ref_name }}
+          fi
+
+  notify:
+    name: 📢 Notificación de Resultados
+    runs-on: ubuntu-latest
+    needs: [validate, generate]
+    if: always()
+    
+    steps:
+      - name: 📝 Create Job Summary
+        run: |
+          echo "# 🎓 Resumen de Generación de Cursos" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ needs.validate.result }}" == "success" ]]; then
+            echo "✅ **Validación:** Exitosa" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Validación:** Fallida" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.generate.result }}" == "success" ]]; then
+            echo "✅ **Generación:** Exitosa" >> $GITHUB_STEP_SUMMARY
+          elif [[ "${{ needs.generate.result }}" == "skipped" ]]; then
+            echo "⏭️ **Generación:** Omitida (sin cambios detectados)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Generación:** Fallida" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Cursos procesados:** ${{ needs.validate.outputs.courses }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Fecha:** $(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: 📊 Final Status
+        run: |
+          if [[ "${{ needs.generate.result }}" == "success" || "${{ needs.generate.result }}" == "skipped" ]]; then
+            echo "🎉 ¡Proceso completado exitosamente!"
+          else
+            echo "💥 El proceso falló. Revisa los logs para más detalles."
+            exit 1
+          fi
